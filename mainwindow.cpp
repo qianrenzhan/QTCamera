@@ -164,7 +164,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::update()
 {
-    clock_t start = clock();
+//    clock_t start = clock();
     //qDebug() << "camera" << endl;
 #if defined (Q_OS_LINUX)
     camera_read_frame(&camera, this->draw_image);   //, user_data
@@ -189,22 +189,24 @@ void MainWindow::update()
 
     if(Save_Flag)
     {
+        QString path = QCoreApplication::applicationDirPath();
         QTime time = QTime::currentTime();
-        QString str = time.toString()+".bmp";
+        QString timestr = QString::number(time.hour())+QString::number(time.minute())+QString::number(time.second());
+        QString str = path + "/" +timestr+".bmp";
         //save picture
         imwrite(str.toStdString(),test);
+        qDebug() << "saved" << endl;
     }
     Save_Flag = 0;
-
 
     QImage disImage = MatToQImage(test);
     ui->label->setPixmap(QPixmap::fromImage(disImage.scaled(ui->label->size())));
 
 #endif
 
-    clock_t end = clock();
-    double totaltime = (double)(end - start) / CLOCKS_PER_SEC;
-    qDebug() << "\ntime is:" << totaltime << "秒！" << endl;
+//    clock_t end = clock();
+//    double totaltime = (double)(end - start) / CLOCKS_PER_SEC;
+//    qDebug() << "\ntime is:" << totaltime << "秒！" << endl;
 }
 
 void MainWindow::on_pushButton_clicked()   //打开摄像头
