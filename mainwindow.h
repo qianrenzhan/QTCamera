@@ -3,27 +3,26 @@
 
 #include <QMainWindow>
 
+#if defined (Q_OS_LINUX)
 #include <sys/types.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#endif
 
+#if defined (Q_OS_WIN32)
+extern "C"
+{
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libswscale/swscale.h"
+#include "libavdevice/avdevice.h"
+}
+#endif
 
-///*摄像头参数id列表*/
-//#define BRIGHTNESS_ID 0x00980900
-//#define CONTRAST_ID 0x00980901
-//#define SATURATION_ID 0x00980902
-//#define HUE_ID 0x00980903
-//#define WHITE_BALANCE_TEMP_AUTO_ID 0x0098090c
-//#define GAMMA_ID 0x00980910
-//#define POWER_LINE_FREQUENCY_ID 0x00980918
-//#define WHITE_BALANCE_TEMP_ID 0x0098091a
-//#define SHARPNESS_ID 0x0098091b
-//#define BACKLIGHT_COMPENSATION_ID 0x0098091c
-//#define EXPOSURE_AUTO_ID 0x009a0901
-//#define EXPOSURE_ABSOLUTE_ID 0x009a0902
-//#define EXPOSURE_AUTO_PRIORITY_ID 0x009a0903
+#include <opencv2/opencv.hpp>
+using namespace cv;
 
 class QTimer;
 
@@ -38,8 +37,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+#if defined (Q_OS_LINUX)
     static void draw_image(void *buf_start, int buf_size);
+#endif
 
 private slots:
     void on_pushButton_clicked();
@@ -48,16 +48,34 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTimer * timer;
+
+#if defined (Q_OS_LINUX)
     static bool Save_Flag;
+    static bool Ready_Flag;
 
     struct v4l2_capability cap;
     struct v4l2_queryctrl qctrl;
     struct v4l2_control ctrl;
     struct v4l2_format Format;
     struct v4l2_streamparm Stream_Parm;
+#endif
+
+#if defined (Q_OS_WIN32)
+    AVFormatContext	*pFormatCtx;
+    int				i, videoindex;
+    int ret, got_picture;
+    AVCodecContext	*pCodecCtx;
+    AVCodec			*pCodec;
+    AVFrame	*pFrame;
+    AVPacket *packet;
+
+    Mat test;
+#endif
 };
 
 #endif // MAINWINDOW_H

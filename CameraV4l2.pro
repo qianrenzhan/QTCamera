@@ -25,7 +25,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
+        mainwindow.cpp
+
+linux{
+SOURCES += \
     V4L2/capture.c \
     V4L2/color.c \
     V4L2/decoder_mjpeg.c \
@@ -48,9 +51,11 @@ SOURCES += \
     V4L2new/jpeg_decoder.c \
     V4L2new/v4l2_xu_ctrls.c \
     V4L2/v4l2camera.c
-
+}
 HEADERS += \
-        mainwindow.h \
+        mainwindow.h
+linux{
+HEADERS += \
     V4L2/capture.h \
     V4L2/color.h \
     V4L2/decoder.h \
@@ -74,15 +79,40 @@ HEADERS += \
     V4L2new/v4l2_xu_ctrls.h \
     config.h \
     V4L2/v4l2camera.h
-
+}
 FORMS += \
         mainwindow.ui
 
+win32{
+INCLUDEPATH+= D:\OpenCV\vs2015-64build-opencv3.3\install\include    \
+            D:\ffmpeg\include
+
+LIBS += D:/ffmpeg/lib/avcodec.lib
+LIBS += D:/ffmpeg/lib/avdevice.lib
+LIBS += D:/ffmpeg/lib/avfilter.lib
+LIBS += D:/ffmpeg/lib/avformat.lib
+LIBS += D:/ffmpeg/lib/avutil.lib
+
+LIBS += D:/ffmpeg/lib/postproc.lib
+LIBS += D:/ffmpeg/lib/swresample.lib
+LIBS += D:/ffmpeg/lib/swscale.lib
+
+CONFIG(debug, debug|release) {
+message("debug")
+LIBS += D:\OpenCV\vs2015-64build-opencv3.3\install\x64\vc14\lib\opencv_*330d.lib
+} else {
+message("release")
+LIBS += D:\OpenCV\vs2015-64build-opencv3.3\install\x64\vc14\lib\opencv_*330.lib
+}
+
+}
+
+
+linux{
 INCLUDEPATH += V4L2
 INCLUDEPATH += V4L2new
 INCLUDEPATH += includes
 
-linux{
 QMAKE_DEFAULT_INCDIRS = ...
 
 INCLUDEPATH += /usr/local/include \
