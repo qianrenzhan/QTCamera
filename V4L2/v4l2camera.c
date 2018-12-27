@@ -18,6 +18,7 @@
 #                                                                           #
 ****************************************************************************/
 #include "v4l2camera.h"
+
 /*
  * File: v4l2camera.c
  * Modifier: qianrenzhan
@@ -44,10 +45,13 @@ int v4l2cameraopen(struct v4l2_capability *cap)
     }
 
     printf("*********************Querycap Success**************************\n");
+
     if(cap->capabilities & V4L2_CAP_VIDEO_CAPTURE)
         printf("*****************capture is on*****************************\n");
+
     if(cap->capabilities & V4L2_CAP_STREAMING)
         printf("*****************Stream is on******************************\n");
+
     printf("\n");
     printf("\n");
     printf("*************************Capabilities**************************\n");
@@ -246,7 +250,7 @@ void set_v4l2_para(int fd)
 
     printf("Set Exposure Absolute ………………\n");
     ctrl.id = V4L2_CID_EXPOSURE_ABSOLUTE;
-    ctrl.value = 4;   //
+    ctrl.value = 100;   //4
     if(ioctl(fd,VIDIOC_S_CTRL,&ctrl)==-1)
     {
         printf("failed\n");

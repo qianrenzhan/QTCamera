@@ -53,11 +53,13 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QTimer * timer;
+    static Mat test;
+    static bool Save_Flag;
+
 
 #if defined (Q_OS_LINUX)
-    static bool Save_Flag;
-    static bool Ready_Flag;
 
+    static bool Ready_Flag;
     struct v4l2_capability cap;
     struct v4l2_queryctrl qctrl;
     struct v4l2_control ctrl;
@@ -73,8 +75,6 @@ private:
     AVCodec			*pCodec;
     AVFrame	*pFrame;
     AVPacket *packet;
-
-    Mat test;
 #endif
 };
 

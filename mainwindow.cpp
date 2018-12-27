@@ -66,9 +66,12 @@ QImage MatToQImage(cv::Mat& mat)
     }
 }
 
-
+bool MainWindow::Save_Flag = 0;
 
 #if defined (Q_OS_WIN32)
+#define CAM_WIDTH       1920
+#define CAM_HEIGHT      1080
+Mat MainWindow::test = Mat::zeros(CAM_HEIGHT,CAM_WIDTH,CV_8UC3);
 Mat avframe_to_cvmat(AVFrame *frame)
 {
     AVFrame dst;
@@ -114,38 +117,25 @@ CameraDevice camera;
 Decoder *decoder = NULL;
 unsigned char rgb_buf[CAM_WIDTH * CAM_HEIGHT * 3];
 
-bool MainWindow::Save_Flag = 0;
 bool MainWindow::Ready_Flag = 0;
-
+Mat MainWindow::test = Mat::zeros(CAM_HEIGHT,CAM_WIDTH,CV_8UC3);
 void MainWindow::draw_image(void *buf_start, int buf_size)   //void *ctx,
 {
-    QTime timedebuge;//声明一个时钟对象
-    timedebuge.start();//开始计时
-
     decoder_decode(decoder, rgb_buf, (unsigned char*)buf_start, buf_size);
     test.create(CAM_HEIGHT, CAM_WIDTH, CV_8UC3);
     memcpy(test.data, rgb_buf, CAM_HEIGHT * CAM_WIDTH * 3);
 
-//    Mat testshow;
-//    Size size(CAM_WIDTH / 2, CAM_HEIGHT / 2);
-//    cv::resize(test, testshow, size);
-
     cvtColor(test,test,CV_RGB2BGR);
     Ready_Flag = 1;
-//    namedWindow("img");
-//    imshow("img", rgb);
 
     if(Save_Flag)
     {
         QTime time = QTime::currentTime();
         QString str = time.toString()+".bmp";
         //save picture
-        imwrite(str.toStdString(),rgb);
-
+        imwrite(str.toStdString(),test);
     }
     Save_Flag = 0;
-
-    qDebug()<<"time:"<<timedebuge.elapsed()/1000.0<<"s";   //16ms
 }
 #endif
 
@@ -196,6 +186,16 @@ void MainWindow::update()
 
     if (got_picture)
         test = avframe_to_cvmat(pFrame);
+
+    if(Save_Flag)
+    {
+        QTime time = QTime::currentTime();
+        QString str = time.toString()+".bmp";
+        //save picture
+        imwrite(str.toStdString(),test);
+    }
+    Save_Flag = 0;
+
 
     QImage disImage = MatToQImage(test);
     ui->label->setPixmap(QPixmap::fromImage(disImage.scaled(ui->label->size())));
@@ -296,10 +296,8 @@ void MainWindow::on_pushButton_2_clicked()    //设置参数
 
 void MainWindow::on_pushButton_3_clicked()
 {
-#if defined (Q_OS_LINUX)
     if(!Save_Flag)
         Save_Flag = 1;
-#endif
 }
 
 void MainWindow::on_pushButton_4_clicked()
@@ -308,5 +306,8 @@ void MainWindow::on_pushButton_4_clicked()
     timer->stop();
     avcodec_close(pCodecCtx);
     avformat_close_input(&pFormatCtx);
+#endif
+#if defined (Q_OS_LINUX)
+    camera_close(&camera);
 #endif
 }
